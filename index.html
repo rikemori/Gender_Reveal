@@ -223,7 +223,7 @@
       100% { opacity: 1; transform: scale(1); }
     }
 
-    /* --- 性別発表メイン（ピンクグラデーションエリア） --- */
+    /* 性別発表メイン（ピンクグラデーションエリア） */
     .gender-card {
       width: 100%;
       padding: 1.5rem 1rem 1.2rem 1rem;
@@ -258,7 +258,7 @@
       background: #fff;
     }
 
-    /* --- エコーギャラリー用の薄水色エリア --- */
+    /* エコーギャラリー用の薄水色エリア */
     .echo-gallery-box {
       background: linear-gradient(135deg, #e6f3ff 0%, #dbeafe 100%);
       border-radius: 16px;
@@ -266,7 +266,6 @@
       box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.03), 0 4px 12px rgba(0, 0, 0, 0.06);
     }
 
-    /* スワイプ促しテキスト */
     .swipe-notice {
       font-size: 0.9rem;
       font-weight: bold;
@@ -274,7 +273,7 @@
       margin-bottom: 0.6rem;
     }
 
-    /* スワイプギャラリー部分のスタイル */
+    /* スワイプギャラリー部分 */
     .slider-container {
       position: relative;
       width: 100%;
@@ -311,7 +310,6 @@
       display: block;
     }
 
-    /* 写真下のキャプション（日付・週数） */
     .slide-caption {
       position: absolute;
       bottom: 0;
@@ -324,6 +322,39 @@
       background: rgba(0, 0, 0, 0.5);
       width: 100%;
       text-align: center;
+    }
+
+    /* 開発者モード時の画像操作操作ボタン */
+    .slide-actions {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      display: flex;
+      gap: 6px;
+      z-index: 10;
+    }
+
+    .action-btn {
+      background: rgba(0, 0, 0, 0.6);
+      color: white;
+      border: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      transition: background 0.2s;
+    }
+
+    .action-btn:hover {
+      background: rgba(0, 0, 0, 0.85);
+    }
+
+    .action-btn.delete:hover {
+      background: #e53e3e;
     }
 
     /* 左右矢印ボタン */
@@ -346,14 +377,10 @@
       transition: background 0.2s;
     }
 
-    .nav-btn:hover {
-      background: rgba(255, 255, 255, 1);
-    }
-
+    .nav-btn:hover { background: rgba(255, 255, 255, 1); }
     .prev-btn { left: 8px; }
     .next-btn { right: 8px; }
 
-    /* ページカウンター */
     .page-counter {
       margin-top: 8px;
       font-size: 0.85rem;
@@ -361,9 +388,9 @@
       font-weight: bold;
     }
 
-    /* --- [NEW] 開発者モードパネル --- */
+    /* 開発者モードパネル */
     .dev-panel {
-      display: none; /* 初期は非表示 */
+      display: none;
       background: #fff;
       border: 2px dashed #7b68ee;
       border-radius: 16px;
@@ -389,12 +416,11 @@
       gap: 8px;
     }
 
-    /* アップロードエリア */
     .upload-area {
       border: 2px dashed #e0e0e0;
       background: #fafafa;
       border-radius: 12px;
-      padding: 20px 10px;
+      padding: 16px 10px;
       text-align: center;
       cursor: pointer;
       position: relative;
@@ -407,9 +433,9 @@
     }
 
     .upload-icon {
-      font-size: 1.8rem;
+      font-size: 1.5rem;
       color: #ccc;
-      margin-bottom: 8px;
+      margin-bottom: 4px;
     }
 
     .upload-text {
@@ -420,18 +446,28 @@
 
     #fileInput { display: none; }
 
-    .memo-input {
+    .input-label {
+      font-size: 0.8rem;
+      color: #555;
+      text-align: left;
+      font-weight: bold;
+      margin-bottom: 4px;
+      display: block;
+    }
+
+    .date-input {
       width: 100%;
       padding: 10px;
       border: 1px solid #ddd;
       border-radius: 8px;
-      font-size: 0.9rem;
-      margin-bottom: 10px;
+      font-size: 0.95rem;
+      margin-bottom: 12px;
       outline: none;
       box-sizing: border-box;
+      font-family: inherit;
     }
     
-    .memo-input:focus { border-color: #7b68ee; }
+    .date-input:focus { border-color: #7b68ee; }
 
     .btn-add {
       background-color: #7b68ee;
@@ -507,7 +543,7 @@
           <div class="page-counter" id="pageCounter"></div>
         </div>
 
-        <!-- [NEW] 開発者モードパネル -->
+        <!-- 開発者モードパネル -->
         <div class="dev-panel" id="devPanel">
           <div class="dev-panel-title">
             <i class="fa-solid fa-code"></i> 次回エコー写真の追加
@@ -517,7 +553,8 @@
             <i class="fa-solid fa-camera upload-icon"></i>
             <div class="upload-text">スマホで撮影またはアルバムから</div>
           </div>
-          <input type="text" id="memoInput" class="memo-input" placeholder="メモ（例：20週目の検診）">
+          <label class="input-label" for="dateInput">検診日（日付）</label>
+          <input type="date" id="dateInput" class="date-input">
           <button class="btn-add" id="addBtn">アルバムに追加</button>
         </div>
 
@@ -528,6 +565,9 @@
   <script>
     const DEV_PASSWORD = "baby1218";
     const STORAGE_KEY_ECHOES = "baby_app_echoes";
+
+    // 妊娠0週0日の日付 (2026/12/18出産予定日から算出した2026/03/13)
+    const START_PREGNANCY_DATE = new Date('2026-03-13T00:00:00');
 
     // 初期エコー写真リスト
     const initialEchoes = [
@@ -554,6 +594,25 @@
 
     let echoes = JSON.parse(localStorage.getItem(STORAGE_KEY_ECHOES)) || initialEchoes;
     let currentIndex = 0;
+    let isDevUnlocked = false;
+
+    // 日付から「YYYY.MM.DD.（XwYd）」の形式を算出する関数
+    function formatCaptionFromDate(dateString) {
+      if (!dateString) return "";
+      const selectedDate = new Date(dateString + 'T00:00:00');
+      
+      const diffTime = selectedDate.getTime() - START_PREGNANCY_DATE.getTime();
+      const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+      
+      const weeks = Math.floor(diffDays / 7);
+      const days = diffDays % 7;
+
+      const yyyy = selectedDate.getFullYear();
+      const mm = String(selectedDate.getMonth() + 1).padStart(2, '0');
+      const dd = String(selectedDate.getDate()).padStart(2, '0');
+
+      return `${yyyy}.${mm}.${dd}.（${weeks}w${days}d）`;
+    }
 
     // 予定日のリアルタイムカウントダウン (2026/12/18)
     const targetDate = new Date('2026-12-18T00:00:00').getTime();
@@ -610,7 +669,20 @@
       echoes.forEach((echo, index) => {
         const slide = document.createElement('div');
         slide.className = 'slide-item';
+        
+        // 開発者モード用の編集・削除ボタンを追加
+        let devButtonsHtml = '';
+        if (isDevUnlocked) {
+          devButtonsHtml = `
+            <div class="slide-actions">
+              <button class="action-btn" onclick="editCaption(${index})" title="キャプション編集"><i class="fa-solid fa-pen"></i></button>
+              <button class="action-btn delete" onclick="deleteSlide(${index})" title="削除"><i class="fa-solid fa-trash"></i></button>
+            </div>
+          `;
+        }
+
         slide.innerHTML = `
+          ${devButtonsHtml}
           <img class="slide-img" src="${echo.url}" alt="echo ${index + 1}">
           <div class="slide-caption">${echo.caption}</div>
         `;
@@ -621,7 +693,7 @@
 
     function updateSlider(immediate = false) {
       if (echoes.length === 0) {
-        sliderWrapper.innerHTML = '<div class="slide-item"><div class="slide-caption">写真はまだ登録されていません</div></div>';
+        sliderWrapper.innerHTML = '<div class="slide-item"><div class="slide-caption">写真は登録されていません</div></div>';
         pageCounter.textContent = '0 / 0';
         return;
       }
@@ -641,6 +713,37 @@
       if (echoes.length === 0) return;
       currentIndex = (currentIndex - 1 + echoes.length) % echoes.length;
       updateSlider();
+    }
+
+    // 編集機能
+    function editCaption(index) {
+      const currentCaption = echoes[index].caption;
+      const newCaption = prompt("表示テキストを入力してください:", currentCaption);
+      if (newCaption !== null && newCaption.trim() !== "") {
+        echoes[index].caption = newCaption.trim();
+        saveEchoes();
+        renderSlider();
+      }
+    }
+
+    // 削除機能
+    function deleteSlide(index) {
+      if (confirm("この写真を削除しますか？")) {
+        echoes.splice(index, 1);
+        if (currentIndex >= echoes.length) {
+          currentIndex = Math.max(0, echoes.length - 1);
+        }
+        saveEchoes();
+        renderSlider();
+      }
+    }
+
+    function saveEchoes() {
+      try {
+        localStorage.setItem(STORAGE_KEY_ECHOES, JSON.stringify(echoes));
+      } catch(e) {
+        alert("保存時にエラーが発生しました。");
+      }
     }
 
     // タッチスワイプ
@@ -671,36 +774,42 @@
           clearInterval(timer);
           countdownEl.style.display = 'none';
           document.getElementById('resultBox').style.display = 'block';
-          renderSlider(); // ここでスライダーをレンダリング
+          renderSlider();
           launchConfetti();
         }
       }, 800);
     }
 
-    // --- [NEW] 開発者モード用スクリプト ---
+    // 開発者モード用スクリプト
     const devModeToggle = document.getElementById('devModeToggle');
     const devIcon = document.getElementById('devIcon');
     const devPanel = document.getElementById('devPanel');
     const fileInput = document.getElementById('fileInput');
-    const memoInput = document.getElementById('memoInput');
+    const dateInput = document.getElementById('dateInput');
     const addBtn = document.getElementById('addBtn');
     let tempImageData = null;
+
+    // 今日の日付を初期値としてセット
+    const todayStr = new Date().toISOString().split('T')[0];
+    dateInput.value = todayStr;
 
     devModeToggle.addEventListener('change', (e) => {
       if (e.target.checked) {
         const pass = prompt("開発者パスワードを入力してください");
         if (pass === DEV_PASSWORD) {
+          isDevUnlocked = true;
           devPanel.style.display = 'block';
           devIcon.classList.add('active');
-          localStorage.setItem('baby_app_dev_mode', 'on');
+          renderSlider(); // 編集・削除ボタンを表示するために再描写
         } else {
           alert("パスワードが違います");
           e.target.checked = false;
         }
       } else {
+        isDevUnlocked = false;
         devPanel.style.display = 'none';
         devIcon.classList.remove('active');
-        localStorage.removeItem('baby_app_dev_mode');
+        renderSlider();
       }
     });
 
@@ -730,8 +839,8 @@
           canvas.width = width;
           canvas.height = height;
           canvas.getContext('2d').drawImage(img, 0, 0, width, height);
-          tempImageData = canvas.toDataURL('image/jpeg', 0.7); // 圧縮
-          alert("写真を読み込みました。メモを入力して追加してください。");
+          tempImageData = canvas.toDataURL('image/jpeg', 0.7);
+          alert("写真を読み込みました。日付を確認して追加してください。");
         };
         img.src = evt.target.result;
       };
@@ -741,29 +850,28 @@
     // アルバムに追加ボタン
     addBtn.addEventListener('click', () => {
       if (!tempImageData) return alert("まずは写真を撮影または選択してください。");
-      const memo = memoInput.value.trim();
-      
+      if (!dateInput.value) return alert("日付を選択してください。");
+
+      const captionText = formatCaptionFromDate(dateInput.value);
+
       echoes.push({
         url: tempImageData,
-        caption: memo || `${new Date().toLocaleDateString('ja-JP')} 撮影`
+        caption: captionText
       });
 
       try {
-        localStorage.setItem(STORAGE_KEY_ECHOES, JSON.stringify(echoes));
+        saveEchoes();
         renderSlider();
-        goToSlide(echoes.length - 1); // 追加した画像へ移動
-        tempImageData = null; memoInput.value = ''; fileInput.value = '';
+        currentIndex = echoes.length - 1;
+        updateSlider();
+        tempImageData = null;
+        fileInput.value = '';
         alert("写真をアルバムに追加しました！");
       } catch(e) {
-        alert("ローカルストレージの容量が足りないため追加できませんでした。");
+        alert("容量オーバーのため追加できませんでした。");
         echoes.pop();
       }
     });
-
-    function goToSlide(index) {
-      currentIndex = index;
-      updateSlider();
-    }
   </script>
 
 </body>
