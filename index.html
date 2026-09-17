@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Gender Reveal App</title>
-  <!-- ★紙吹雪用ライブラリ（canvas-confetti）の読み込み -->
+  <!-- 紙吹雪用ライブラリ -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   <style>
     /* 全体のスタイル */
@@ -92,6 +92,22 @@
       color: #888;
     }
 
+    /* Boy / Girl 画像並列エリア */
+    .question-images-box {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 1.2rem;
+    }
+
+    .question-img {
+      width: 48%;
+      height: auto;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+      background: #fff;
+    }
+
     /* 発表ボタン */
     .reveal-btn {
       width: 100%;
@@ -135,14 +151,10 @@
       100% { transform: scale(1.15); }
     }
 
-    /* 結果カード */
+    /* 結果全体コンテナ */
     .result-box {
       display: none;
       width: 100%;
-      padding: 1.5rem 1rem;
-      border-radius: 16px;
-      color: white;
-      background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
       animation: popIn 0.5s ease-out forwards;
       box-sizing: border-box;
     }
@@ -152,29 +164,135 @@
       100% { opacity: 1; transform: scale(1); }
     }
 
+    /* --- 性別発表メイン（ピンクグラデーションエリア） --- */
+    .gender-card {
+      width: 100%;
+      padding: 1.5rem 1rem 1.2rem 1rem;
+      border-radius: 16px;
+      color: white;
+      background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+      box-shadow: 0 4px 12px rgba(255, 154, 158, 0.3);
+      box-sizing: border-box;
+      margin-bottom: 1rem;
+    }
+
     .result-title {
       font-size: 1.2rem;
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.3rem;
     }
 
     .result-gender {
       font-size: 2.5rem;
       font-weight: bold;
-      margin-bottom: 1rem;
+      margin-bottom: 0.8rem;
     }
 
-    .emoji {
-      font-size: 3.5rem;
-      margin-bottom: 0.5rem;
-    }
-
-    .custom-image {
-      max-width: 100%;
+    /* 結果表示内の女の子画像 */
+    .result-girl-img {
+      width: 65%;
+      max-width: 220px;
       height: auto;
+      border-radius: 16px;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.12);
+      margin: 0 auto;
+      display: block;
+      background: #fff;
+    }
+
+    /* --- エコーギャラリー用の薄水色エリア --- */
+    .echo-gallery-box {
+      background: linear-gradient(135deg, #e6f3ff 0%, #dbeafe 100%);
+      border-radius: 16px;
+      padding: 1rem 0.8rem 0.8rem 0.8rem;
+      box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.03), 0 4px 12px rgba(0, 0, 0, 0.06);
+    }
+
+    /* スワイプ促しテキスト */
+    .swipe-notice {
+      font-size: 0.9rem;
+      font-weight: bold;
+      color: #2b6cb0;
+      margin-bottom: 0.6rem;
+    }
+
+    /* スワイプギャラリー部分のスタイル */
+    .slider-container {
+      position: relative;
+      width: 100%;
+      overflow: hidden;
       border-radius: 12px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      display: none;
-      margin-top: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+      touch-action: pan-y;
+      background: #fff;
+    }
+
+    .slider-wrapper {
+      display: flex;
+      transition: transform 0.3s ease-out;
+      width: 100%;
+    }
+
+    .slide-item {
+      width: 100%;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: #fff;
+    }
+
+    .slide-img {
+      width: 100%;
+      height: auto;
+      object-fit: cover;
+      display: block;
+    }
+
+    /* 写真下のキャプション（日付・週数） */
+    .slide-caption {
+      padding: 8px 0;
+      font-size: 0.95rem;
+      font-weight: bold;
+      color: #444;
+      background: #ffffff;
+      width: 100%;
+      text-align: center;
+      border-top: 1px solid #f0f0f0;
+    }
+
+    /* 左右矢印ボタン */
+    .nav-btn {
+      position: absolute;
+      top: 45%;
+      transform: translateY(-50%);
+      background: rgba(255, 255, 255, 0.85);
+      border: none;
+      color: #333;
+      font-size: 1.2rem;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+      transition: background 0.2s;
+    }
+
+    .nav-btn:hover {
+      background: rgba(255, 255, 255, 1);
+    }
+
+    .prev-btn { left: 8px; }
+    .next-btn { right: 8px; }
+
+    /* ページカウンター */
+    .page-counter {
+      margin-top: 8px;
+      font-size: 0.85rem;
+      color: #3b82f6;
+      font-weight: bold;
     }
   </style>
 </head>
@@ -184,10 +302,10 @@
     <h1>Gender Reveal 👶✨</h1>
     <p class="subtitle">赤ちゃんの性別はどっち...？</p>
 
-    <!-- 出産予定日までのカウントダウン枠 -->
+    <!-- 出産予定日までのカウントダウン枠 (2026.12.18.) -->
     <div class="due-date-box">
       <div class="due-date-title">BABY DUE DATE 🍼</div>
-      <div class="due-date-text">2026年12月18日まで</div>
+      <div class="due-date-text">2026.12.18. まで</div>
       <div class="timer-display">
         <div class="timer-unit"><div id="days" class="timer-num">00</div><div class="timer-label">日</div></div>
         <div class="timer-unit"><div id="hours" class="timer-num">00</div><div class="timer-label">時間</div></div>
@@ -196,26 +314,127 @@
       </div>
     </div>
 
-    <!-- 発表ボタン -->
-    <button id="revealBtn" class="reveal-btn" onclick="startReveal()">オープン！ 🎁</button>
+    <!-- 発表前エリア -->
+    <div id="beforeRevealArea">
+      <div class="question-images-box">
+        <img class="question-img" src="baby_boy09_question.png" alt="Boy Question">
+        <img class="question-img" src="baby_girl09_question.png" alt="Girl Question">
+      </div>
+      <button id="revealBtn" class="reveal-btn" onclick="startReveal()">性別を知る 🎁</button>
+    </div>
 
     <!-- 結果表示エリア -->
     <div class="result-area">
       <div id="countdown" class="countdown" style="display: none;"></div>
       
       <div id="resultBox" class="result-box">
-        <div class="emoji">👧 💗</div>
-        <div class="result-title">Baby is a...</div>
-        <div class="result-gender">GIRL !</div>
         
-        <!-- 差し込み画像 -->
-        <img id="revealImage" class="custom-image" src="baby_girl10_heart.png" alt="女の子の画像">
+        <!-- ① 性別発表（ピンクグラデーションカード） -->
+        <div class="gender-card">
+          <div class="result-title">Baby is a...</div>
+          <div class="result-gender">GIRL ! 💗</div>
+          <!-- 画像を baby_girl10_heart.png に更新 -->
+          <img class="result-girl-img" src="baby_girl10_heart.png" alt="Girl Result">
+        </div>
+
+        <!-- ② エコー写真（薄い水色独立エリア） -->
+        <div class="echo-gallery-box">
+          <div class="swipe-notice">👈 エコー写真をみるにはスワイプ 👉</div>
+          
+          <div class="slider-container" id="sliderContainer">
+            <button class="nav-btn prev-btn" onclick="prevSlide()">❮</button>
+            
+            <div class="slider-wrapper" id="sliderWrapper">
+              <div class="slide-item">
+                <img class="slide-img" src="echo_01.png" alt="echo 01">
+                <div class="slide-caption">2026.04.24.（6w0d）</div>
+              </div>
+              <div class="slide-item">
+                <img class="slide-img" src="echo_02.png" alt="echo 02">
+                <div class="slide-caption">2026.05.11.（8w3d）</div>
+              </div>
+              <div class="slide-item">
+                <img class="slide-img" src="echo_03.png" alt="echo 03">
+                <div class="slide-caption">2026.05.18.（9w3d）</div>
+              </div>
+              <div class="slide-item">
+                <img class="slide-img" src="echo_04.png" alt="echo 04">
+                <div class="slide-caption">2026.05.21.（9w6d）</div>
+              </div>
+              <div class="slide-item">
+                <img class="slide-img" src="echo_05.png" alt="echo 05">
+                <div class="slide-caption">2026.06.04.（11w6d）</div>
+              </div>
+              <div class="slide-item">
+                <img class="slide-img" src="echo_06_1.png" alt="echo 06-1">
+                <div class="slide-caption">2026.07.03.（16w0d）</div>
+              </div>
+              <div class="slide-item">
+                <img class="slide-img" src="echo_06_2.png" alt="echo 06-2">
+                <div class="slide-caption">2026.07.03.（16w0d）</div>
+              </div>
+              <div class="slide-item">
+                <img class="slide-img" src="echo_07.png" alt="echo 07">
+                <div class="slide-caption">2026.07.14.（17w4d）</div>
+              </div>
+              <div class="slide-item">
+                <img class="slide-img" src="echo_08_1.png" alt="echo 08-1">
+                <div class="slide-caption">2026.08.03.（20w3d）</div>
+              </div>
+              <div class="slide-item">
+                <img class="slide-img" src="echo_08_2.png" alt="echo 08-2">
+                <div class="slide-caption">2026.08.03.（20w3d）</div>
+              </div>
+              <div class="slide-item">
+                <img class="slide-img" src="echo_08_3.png" alt="echo 08-3">
+                <div class="slide-caption">2026.08.03.（20w3d）</div>
+              </div>
+              <div class="slide-item">
+                <img class="slide-img" src="echo_08_4.png" alt="echo 08-4">
+                <div class="slide-caption">2026.08.03.（20w3d）</div>
+              </div>
+              <div class="slide-item">
+                <img class="slide-img" src="echo_09.png" alt="echo 09">
+                <div class="slide-caption">2026.08.06.（20w6d）</div>
+              </div>
+              <div class="slide-item">
+                <img class="slide-img" src="echo_10_1.png" alt="echo 10-1">
+                <div class="slide-caption">2026.09.02.（24w5d）</div>
+              </div>
+              <div class="slide-item">
+                <img class="slide-img" src="echo_10_2.png" alt="echo 10-2">
+                <div class="slide-caption">2026.09.02.（24w5d）</div>
+              </div>
+              <div class="slide-item">
+                <img class="slide-img" src="echo_10_3.png" alt="echo 10-3">
+                <div class="slide-caption">2026.09.02.（24w5d）</div>
+              </div>
+              <div class="slide-item">
+                <img class="slide-img" src="echo_10_4.png" alt="echo 10-4">
+                <div class="slide-caption">2026.09.02.（24w5d）</div>
+              </div>
+              <div class="slide-item">
+                <img class="slide-img" src="echo_11_1.png" alt="echo 11-1">
+                <div class="slide-caption">2026.09.16.（26w5d）</div>
+              </div>
+              <div class="slide-item">
+                <img class="slide-img" src="echo_11_2.png" alt="echo 11-2">
+                <div class="slide-caption">2026.09.16.（26w5d）</div>
+              </div>
+            </div>
+
+            <button class="nav-btn next-btn" onclick="nextSlide()">❯</button>
+          </div>
+          
+          <div class="page-counter" id="pageCounter">1 / 19</div>
+        </div>
+
       </div>
     </div>
   </div>
 
   <script>
-    // 1. 出産予定日のリアルタイムカウントダウン機能
+    // 予定日のリアルタイムカウントダウン (2026/12/18)
     const targetDate = new Date('2026-12-18T00:00:00').getTime();
 
     function updateDueDateTimer() {
@@ -241,12 +460,10 @@
     setInterval(updateDueDateTimer, 1000);
     updateDueDateTimer();
 
-    // 2. 紙吹雪を飛ばす関数
+    // 紙吹雪機能
     function launchConfetti() {
       const count = 200;
-      const defaults = {
-        origin: { y: 0.7 }
-      };
+      const defaults = { origin: { y: 0.7 } };
 
       function fire(particleRatio, opts) {
         confetti({
@@ -256,42 +473,59 @@
         });
       }
 
-      // 女の子向けにピンク・ゴールド・ホワイト系の紙吹雪を発射
-      fire(0.25, {
-        spread: 26,
-        startVelocity: 55,
-        colors: ['#ff9a9e', '#fecfef', '#ffffff']
-      });
-      fire(0.2, {
-        spread: 60,
-        colors: ['#ff819c', '#ffd1dc', '#ffd700']
-      });
-      fire(0.35, {
-        spread: 100,
-        decay: 0.91,
-        scalar: 0.8
-      });
-      fire(0.1, {
-        spread: 120,
-        startVelocity: 25,
-        decay: 0.92,
-        colors: ['#ff819c', '#ffffff']
-      });
-      fire(0.1, {
-        spread: 120,
-        startVelocity: 45,
-      });
+      fire(0.25, { spread: 26, startVelocity: 55, colors: ['#ff9a9e', '#fecfef', '#ffffff'] });
+      fire(0.2, { spread: 60, colors: ['#ff819c', '#ffd1dc', '#ffd700'] });
+      fire(0.35, { spread: 100, decay: 0.91, scalar: 0.8 });
+      fire(0.1, { spread: 120, startVelocity: 25, decay: 0.92, colors: ['#ff819c', '#ffffff'] });
+      fire(0.1, { spread: 120, startVelocity: 45 });
     }
 
-    // 3. 性別発表ボタンの動作
+    // スワイプギャラリーの制御
+    let currentIndex = 0;
+    const sliderWrapper = document.getElementById('sliderWrapper');
+    const slides = document.querySelectorAll('.slide-item');
+    const pageCounter = document.getElementById('pageCounter');
+
+    function updateSlider() {
+      sliderWrapper.style.transform = `translateX(-${currentIndex * 100}%)`;
+      pageCounter.textContent = `${currentIndex + 1} / ${slides.length}`;
+    }
+
+    function nextSlide() {
+      currentIndex = (currentIndex + 1) % slides.length;
+      updateSlider();
+    }
+
+    function prevSlide() {
+      currentIndex = (currentIndex - 1 + slides.length) % slides.length;
+      updateSlider();
+    }
+
+    // タッチスワイプ
+    let startX = 0;
+    let endX = 0;
+    const container = document.getElementById('sliderContainer');
+
+    container.addEventListener('touchstart', (e) => {
+      startX = e.touches[0].clientX;
+    }, false);
+
+    container.addEventListener('touchend', (e) => {
+      endX = e.changedTouches[0].clientX;
+      const diffX = startX - endX;
+      if (Math.abs(diffX) > 40) {
+        if (diffX > 0) nextSlide();
+        else prevSlide();
+      }
+    }, false);
+
+    // 性別発表ボタンの動作
     function startReveal() {
-      const revealBtn = document.getElementById('revealBtn');
+      const beforeRevealArea = document.getElementById('beforeRevealArea');
       const countdownEl = document.getElementById('countdown');
       const resultBox = document.getElementById('resultBox');
-      const revealImage = document.getElementById('revealImage');
 
-      revealBtn.style.display = 'none';
-
+      beforeRevealArea.style.display = 'none';
       countdownEl.style.display = 'block';
       let count = 3;
       countdownEl.textContent = 'ドキドキ...';
@@ -305,9 +539,6 @@
           countdownEl.style.display = 'none';
 
           resultBox.style.display = 'block';
-          revealImage.style.display = 'block';
-
-          // ★結果表示と同時に紙吹雪を発射！★
           launchConfetti();
         }
       }, 800);
