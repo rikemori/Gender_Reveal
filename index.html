@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Gender Reveal App</title>
+  <!-- ★紙吹雪用ライブラリ（canvas-confetti）の読み込み -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   <style>
     /* 全体のスタイル */
     body {
@@ -214,7 +216,6 @@
 
   <script>
     // 1. 出産予定日のリアルタイムカウントダウン機能
-    // ※ 2026年12月18日 00:00:00 に設定しています
     const targetDate = new Date('2026-12-18T00:00:00').getTime();
 
     function updateDueDateTimer() {
@@ -226,7 +227,6 @@
         return;
       }
 
-      // 日・時間・分・秒の計算
       const days = Math.floor(distance / (1000 * 60 * 60 * 24));
       const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
       const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
@@ -238,11 +238,52 @@
       document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
     }
 
-    // 1秒ごとにタイマーを更新
     setInterval(updateDueDateTimer, 1000);
-    updateDueDateTimer(); // 初回実行
+    updateDueDateTimer();
 
-    // 2. 性別発表ボタンの動作
+    // 2. 紙吹雪を飛ばす関数
+    function launchConfetti() {
+      const count = 200;
+      const defaults = {
+        origin: { y: 0.7 }
+      };
+
+      function fire(particleRatio, opts) {
+        confetti({
+          ...defaults,
+          ...opts,
+          particleCount: Math.floor(count * particleRatio)
+        });
+      }
+
+      // 女の子向けにピンク・ゴールド・ホワイト系の紙吹雪を発射
+      fire(0.25, {
+        spread: 26,
+        startVelocity: 55,
+        colors: ['#ff9a9e', '#fecfef', '#ffffff']
+      });
+      fire(0.2, {
+        spread: 60,
+        colors: ['#ff819c', '#ffd1dc', '#ffd700']
+      });
+      fire(0.35, {
+        spread: 100,
+        decay: 0.91,
+        scalar: 0.8
+      });
+      fire(0.1, {
+        spread: 120,
+        startVelocity: 25,
+        decay: 0.92,
+        colors: ['#ff819c', '#ffffff']
+      });
+      fire(0.1, {
+        spread: 120,
+        startVelocity: 45,
+      });
+    }
+
+    // 3. 性別発表ボタンの動作
     function startReveal() {
       const revealBtn = document.getElementById('revealBtn');
       const countdownEl = document.getElementById('countdown');
@@ -265,6 +306,9 @@
 
           resultBox.style.display = 'block';
           revealImage.style.display = 'block';
+
+          // ★結果表示と同時に紙吹雪を発射！★
+          launchConfetti();
         }
       }, 800);
     }
