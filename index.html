@@ -14,11 +14,13 @@
       align-items: center;
       min-height: 100vh;
       margin: 0;
+      padding: 20px 0;
+      box-sizing: border-box;
     }
 
     .card {
       background: rgba(255, 255, 255, 0.9);
-      padding: 2.5rem 2rem;
+      padding: 2rem 1.8rem;
       border-radius: 24px;
       box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
       max-width: 420px;
@@ -30,13 +32,62 @@
     h1 {
       font-size: 1.6rem;
       color: #444;
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.3rem;
     }
 
     p.subtitle {
       color: #777;
       font-size: 0.95rem;
-      margin-bottom: 2rem;
+      margin-bottom: 1.5rem;
+    }
+
+    /* 予定日カウントダウンエリア */
+    .due-date-box {
+      background: #ffffff;
+      border: 2px dashed #ff9a9e;
+      border-radius: 16px;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+    }
+
+    .due-date-title {
+      font-size: 0.85rem;
+      color: #888;
+      font-weight: bold;
+      margin-bottom: 0.3rem;
+    }
+
+    .due-date-text {
+      font-size: 0.95rem;
+      color: #ff6b81;
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+    }
+
+    .timer-display {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .timer-unit {
+      background: #fff0f3;
+      padding: 6px 10px;
+      border-radius: 8px;
+      min-width: 45px;
+    }
+
+    .timer-num {
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: #d81b60;
+      line-height: 1.1;
+    }
+
+    .timer-label {
+      font-size: 0.65rem;
+      color: #888;
     }
 
     /* 発表ボタン */
@@ -61,15 +112,15 @@
 
     /* 演出・結果表示エリア */
     .result-area {
-      margin-top: 2rem;
-      min-height: 150px;
+      margin-top: 1.5rem;
+      min-height: 120px;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
     }
 
-    /* カウントダウン表示 */
+    /* ドラムロールカウントダウン表示 */
     .countdown {
       font-size: 3rem;
       font-weight: bold;
@@ -82,7 +133,7 @@
       100% { transform: scale(1.15); }
     }
 
-    /* 結果カード（女の子カラーで固定） */
+    /* 結果カード */
     .result-box {
       display: none;
       width: 100%;
@@ -91,6 +142,7 @@
       color: white;
       background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
       animation: popIn 0.5s ease-out forwards;
+      box-sizing: border-box;
     }
 
     @keyframes popIn {
@@ -114,13 +166,12 @@
       margin-bottom: 0.5rem;
     }
 
-    /* 差し込む画像のスタイル */
     .custom-image {
       max-width: 100%;
       height: auto;
       border-radius: 12px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      display: none; /* 初期は非表示 */
+      display: none;
       margin-top: 10px;
     }
   </style>
@@ -131,10 +182,22 @@
     <h1>Gender Reveal 👶✨</h1>
     <p class="subtitle">赤ちゃんの性別はどっち...？</p>
 
-    <!-- ボタン -->
-    <button id="revealBtn" class="reveal-btn" onclick="startReveal()">性別を知る！ 🎁</button>
+    <!-- 出産予定日までのカウントダウン枠 -->
+    <div class="due-date-box">
+      <div class="due-date-title">BABY DUE DATE 🍼</div>
+      <div class="due-date-text">2026年12月18日まで</div>
+      <div class="timer-display">
+        <div class="timer-unit"><div id="days" class="timer-num">00</div><div class="timer-label">日</div></div>
+        <div class="timer-unit"><div id="hours" class="timer-num">00</div><div class="timer-label">時間</div></div>
+        <div class="timer-unit"><div id="minutes" class="timer-num">00</div><div class="timer-label">分</div></div>
+        <div class="timer-unit"><div id="seconds" class="timer-num">00</div><div class="timer-label">秒</div></div>
+      </div>
+    </div>
 
-    <!-- 結果・ドラムロール演出表示部 -->
+    <!-- 発表ボタン -->
+    <button id="revealBtn" class="reveal-btn" onclick="startReveal()">オープン！ 🎁</button>
+
+    <!-- 結果表示エリア -->
     <div class="result-area">
       <div id="countdown" class="countdown" style="display: none;"></div>
       
@@ -143,23 +206,51 @@
         <div class="result-title">Baby is a...</div>
         <div class="result-gender">GIRL !</div>
         
-        <!-- ★ここに画像を差し込みます★ -->
+        <!-- 差し込み画像 -->
         <img id="revealImage" class="custom-image" src="baby_girl10_heart.png" alt="女の子の画像">
       </div>
     </div>
   </div>
 
   <script>
+    // 1. 出産予定日のリアルタイムカウントダウン機能
+    // ※ 2026年12月18日 00:00:00 に設定しています
+    const targetDate = new Date('2026-12-18T00:00:00').getTime();
+
+    function updateDueDateTimer() {
+      const now = new Date().getTime();
+      const distance = targetDate - now;
+
+      if (distance < 0) {
+        document.querySelector('.due-date-box').innerHTML = "<div class='due-date-text'>出産予定日を迎えました！👶✨</div>";
+        return;
+      }
+
+      // 日・時間・分・秒の計算
+      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+      document.getElementById('days').textContent = String(days).padStart(2, '0');
+      document.getElementById('hours').textContent = String(hours).padStart(2, '0');
+      document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
+      document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
+    }
+
+    // 1秒ごとにタイマーを更新
+    setInterval(updateDueDateTimer, 1000);
+    updateDueDateTimer(); // 初回実行
+
+    // 2. 性別発表ボタンの動作
     function startReveal() {
       const revealBtn = document.getElementById('revealBtn');
       const countdownEl = document.getElementById('countdown');
       const resultBox = document.getElementById('resultBox');
       const revealImage = document.getElementById('revealImage');
 
-      // 発表ボタンを非表示にする（スマートに見せるため）
       revealBtn.style.display = 'none';
 
-      // カウントダウン開始
       countdownEl.style.display = 'block';
       let count = 3;
       countdownEl.textContent = 'ドキドキ...';
@@ -172,16 +263,12 @@
           clearInterval(timer);
           countdownEl.style.display = 'none';
 
-          // 結果と画像を表示
           resultBox.style.display = 'block';
           revealImage.style.display = 'block';
         }
-      }, 1000);
+      }, 800);
     }
   </script>
-
-</body>
-</html>
 
 </body>
 </html>
