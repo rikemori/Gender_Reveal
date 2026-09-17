@@ -40,7 +40,7 @@
     }
 
     /* 性別を設定する設定エリア（発表時には隠すことも可能） */
-    /*.setup-area {
+    .setup-area {
       margin-bottom: 1.5rem;
       padding: 12px;
       background: #f8f9fa;
@@ -55,7 +55,7 @@
       border-radius: 8px;
       outline: none;
     }
-   */
+   
     /* 発表ボタン */
     .reveal-btn {
       width: 100%;
@@ -150,7 +150,7 @@
         <option value="">発表する性別を選んでください</option>
         <option value="boy">👦 男の子 (Boy)</option>
         <option value="girl">👧 女の子 (Girl)</option>
-        <option value="random">🎲 ランダム（お楽しみ）</option>
+        //<option value="random">🎲 ランダム（お楽しみ）</option>
       </select>
     </div>
 
@@ -179,9 +179,9 @@
       }
 
       // ランダムが選ばれた場合は五分五分で決定
-      if (selectedValue === 'random') {
-        selectedValue = Math.random() < 0.5 ? 'boy' : 'girl';
-      }
+      //if (selectedValue === 'random') {
+      //  selectedValue = Math.random() < 0.5 ? 'boy' : 'girl';
+      //}
 
       const countdownEl = document.getElementById('countdown');
       const resultBox = document.getElementById('resultBox');
